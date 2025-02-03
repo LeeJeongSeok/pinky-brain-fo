@@ -1,22 +1,44 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { Link } from "react-router-dom";
 
 /* TODO: products.length의 개수가 안맞음*/
 
 
-function ProductList({ products }) {        
+function ProductList({ products }) {
+    
+    const [sortOrder, setSortOrder] = useState("latest"); // 최신순 기본 설정
 
-    const [selectedCategory, setSelectedCategory] = useState("all");
-    const categories = ["all", "mens", "women", "common"]; 
-    const filteredProducts = selectedCategory === "all" ? products : products.filter((product) => product.category === selectedCategory);
+    const handleSort = (order) => {
+        setSortOrder(order);
+    };
+
+    // 정렬된 상품 목록 생성
+    const sortedProducts = [...products].sort((a, b) => {
+        if (sortOrder === "latest") {
+            return new Date(b.createdAt) - new Date(a.createdAt); // 최신순 정렬
+        } else if (sortOrder === "name") {
+            return a.name.localeCompare(b.name); // 이름순 정렬
+        }
+        return 0;
+    });
 
     return (
         <div>
             <div className="flex justify-between items-center mb-8 text-[#8B4513]">
                 <div className="text-sm">등록제품 {products.length}개</div>
                     <div className="flex items-center space-x-4 text-sm">
-                    <button>최신순</button>
-                    <button>이름순</button>
+                    <button 
+                        onClick={() => handleSort("latest")} 
+                        className="px-2 py-1"
+                    >
+                        최신순
+                    </button>
+                    <button 
+                        onClick={() => handleSort("name")} 
+                        className="px-2 py-1"
+                    >
+                        이름순
+                    </button>
                 </div>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
