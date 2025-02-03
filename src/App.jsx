@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react"
+import { useState, useEffect } from "react"
 import { MemoryRouter as Router, Routes, Route } from "react-router-dom"
 import Layout from "./components/Layout.jsx"
 import ProductList from "./components/ProductList.jsx"
@@ -8,10 +8,13 @@ import ProductDetail from "./components/ProductDetail.jsx"
 function App() {
 
     const [products, setProducts] = useState([]);
+    const [categories, setCategories] = useState([]); // 카테고리 상태
+    const [selectedCategory, setSelectedCategory] = useState("all"); // 선택된 카테고리 상태
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
+    
 
     const fetchProducts = async (page) => {
         setLoading(true);
@@ -24,7 +27,13 @@ function App() {
                 }
                 const result = await response.json();
                 setProducts((prev) => [...prev, ...result.data]); // 기존 데이터에 추가
+                // 최초 한 번만 실행: 카테고리 목록 설정
+                if (categories.length === 0) {
+                    const uniqueCategories = ["all", ...new Set(result.data.map((product) => product.category))];
+                    setCategories(uniqueCategories); // 고정된 순서로 설정
+                }
                 setTotalPages(result.pageInfo.totalPages); // 총 페이지 업데이트
+
             } catch (err) {
                 setError(err.message);
             } finally {
@@ -57,13 +66,18 @@ function App() {
         return <div>Error: { error }</div>;
     }
 
+     // 카테고리에 따라 상품 필터링
+    const filteredProducts = selectedCategory === "all"
+        ? products
+        : products.filter(product => product.category === selectedCategory);
+
     return (
         <Router>
-            <Layout>
-            <Routes>
-                <Route path="/" element={<ProductList products={products} />} />
-                <Route path="/products/:id" element={<ProductDetail products={products}/>} />
-            </Routes>
+            <Layout categories={categories} selectedCategory={selectedCategory} setSelectedCategory={setSelectedCategory}>
+                <Routes>
+                    <Route path="/" element={<ProductList products={filteredProducts} />} />
+                    <Route path="/products/:id" element={<ProductDetail products={products}/>} />
+                </Routes>
             </Layout>
         </Router>
     )
