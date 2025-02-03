@@ -1,7 +1,6 @@
-import React from "react";
 import { Link } from "react-router-dom";
 
-function Layout({ children }) {
+function Layout({ children, categories, selectedCategory, setSelectedCategory }) {
     return (
         <div className="min-h-screen bg-white w-full">
             <header className="border-b fixed top-0 left-0 right-0 bg-white z-50">
@@ -10,10 +9,10 @@ function Layout({ children }) {
                     Pinky & Brain
                 </Link>
                 <nav className="flex items-center space-x-8">
-                    {["전체", "남성", "여성", "공용"].map((item) => ( /* TODO: 상품 카테고리도 서버에서 받아와야 함, 카테고리를 클릭했을 때 대응되는 아이템만 출력되어야함*/
-                        <Link key={item} to="/" className="text-[#8B4513] hover:text-[#A0522D] text-sm">
-                            {item}
-                        </Link>
+                    {categories.map((category) => (
+                            <button key={category} onClick={() => setSelectedCategory(category)} className="text-[#8B4513] text-lg hover:text-[#A0522D] text-sm">
+                                {category}
+                            </button>
                     ))}
                 </nav>
                 </div>
